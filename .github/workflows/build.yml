@@ -46,17 +46,21 @@ jobs:
           g++ \
           make \
           libncurses-dev
-        # Install pyelftools globally
         sudo pip3 install pyelftools
-        # Verify installation
         python3 -c "import elftools; print('pyelftools OK')"
-        # Show Python path for debugging
-        python3 -c "import sys; print('\n'.join(sys.path))"
 
     - name: Clone source code
       run: |
         git clone --depth 1 -b $REPO_BRANCH $REPO_URL /workdir/source
         git -C /workdir/source log -1 --format="%H %s"
+
+    - name: Add PassWall feeds
+      run: |
+        cd /workdir/source
+        # 添加 PassWall 所需的额外 feeds
+        echo 'src-git lienol https://github.com/lienol/openwrt-package' >> feeds.conf.default
+        echo 'src-git xiaorouji https://github.com/xiaorouji/openwrt-passwall' >> feeds.conf.default
+        echo "Feeds updated with PassWall sources"
 
     - name: Load custom configuration
       run: |
@@ -86,7 +90,6 @@ jobs:
     - name: Compile firmware
       run: |
         cd /workdir/source
-        # Ensure pyelftools is in PYTHONPATH
         export PYTHONPATH="/usr/lib/python3/dist-packages:/usr/local/lib/python3.12/dist-packages:$PYTHONPATH"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "BUILD_STATUS=success" >> $GITHUB_ENV
