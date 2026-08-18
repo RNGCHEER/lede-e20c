@@ -1,23 +1,32 @@
 # RADXA E20C LEDE固件编译
 
-本仓库使用GitHub Actions自动编译LEDE固件，针对RADXA E20C设备。
+本仓库使用GitHub Actions自动编译LEDE固件，针对RADXA E20C（瑞莎 E20C）设备。
 
 ## 设备简介
 
-[RADXA E20C](https://docs.radxa.com/e/e20c/getting-started/introduction) 是一款基于RK3576的高性能ARM开发板，支持eMMC存储和TF卡扩展。
+[RADXA E20C](https://docs.radxa.com/e/e20c/getting-started/introduction) 是一款基于Rockchip RK3528A的高性价比ARM开发板，支持eMMC存储和TF卡扩展，非常适合用作软路由、NAS或边缘计算设备。
 
-### 主要特性
-- **处理器**: RK3576 四核Cortex-A72 + 四核Cortex-A53
-- **内存**: 4GB/8GB LPDDR4X
-- **存储**: 板载eMMC + TF卡槽
-- **网络**: 千兆以太网 + 可选WiFi
-- **USB**: USB 3.0 + USB 2.0
+## 硬件规格
+
+| 参数 | 规格 |
+|------|------|
+| **型号** | 瑞莎 E20C |
+| **SoC** | Rockchip RK3528A |
+| **CPU** | 四核 ARM Cortex-A53 频率最高达 2.0GHz |
+| **GPU** | ARM Mali-450 GPU，支持 OpenGL® ES1.1, ES2.0, OpenVG® 1.1 |
+| **内存** | 1GB / 2GB / 4GB 32位 LPDDR4 |
+| **存储** | 板载 eMMC: 0GB / 8GB / 16GB / 32GB / 64GB<br>microSD 存储卡 |
+| **硬件编解码** | H.264、H.265 和 AVS2 解码，支持 4Kx2K@60fps<br>H.264 和 H.265 编码，支持 1920x1080@60fps |
+| **以太网** | 2x 千兆以太网 |
+| **USB** | 1x USB 2.0 端口 |
+| **供电** | 仅支持 5V |
+| **尺寸** | 66mm x 66mm |
 
 ## 固件功能
 
 ### 💾 存储支持
-- **eMMC写入**: 支持直接将固件写入板载eMMC
-- **TF卡启动**: 支持从TF卡启动，便于测试和恢复
+- **eMMC写入**: 支持直接将固件写入板载eMMC（0/8/16/32/64GB可选）
+- **TF卡启动**: 支持从microSD存储卡启动，便于测试和恢复
 - **ext4文件系统**: 高性能读写支持
 
 ### 📡 4G/5G模组支持
@@ -45,7 +54,7 @@
 ### 方法一：写入TF卡
 1. 下载固件文件
 2. 使用Balena Etcher或dd命令写入TF卡
-3. 将TF卡插入E20C
+3. 将TF卡插入E20C的microSD卡槽
 4. 上电启动
 
 ### 方法二：写入eMMC
@@ -55,7 +64,7 @@
 4. 从eMMC启动
 
 ### 方法三：SSH网络安装
-1. 通过网线连接E20C
+1. 通过网线连接E20C（双千兆以太网口任选其一）
 2. 访问LuCI界面
 3. 在系统-备份/升级中上传固件
 
@@ -82,6 +91,7 @@
 2. eMMC版本需要使用官方工具预烧录TF卡镜像
 3. 建议使用x86设备运行OpenClash以获得更好性能
 4. 4G/5G模组需要在LuCI界面中进行配置
+5. 供电仅支持5V，请使用合格的5V电源适配器
 
 ## 致谢
 
