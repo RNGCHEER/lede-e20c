@@ -54,13 +54,15 @@ jobs:
         git clone --depth 1 -b $REPO_BRANCH $REPO_URL /workdir/source
         git -C /workdir/source log -1 --format="%H %s"
 
-    - name: Add PassWall feeds
+    - name: Clone PassWall packages
       run: |
         cd /workdir/source
-        # 添加 PassWall 所需的额外 feeds
-        echo 'src-git lienol https://github.com/lienol/openwrt-package' >> feeds.conf.default
-        echo 'src-git xiaorouji https://github.com/xiaorouji/openwrt-passwall' >> feeds.conf.default
-        echo "Feeds updated with PassWall sources"
+        # 克隆 PassWall 主程序和依赖包到 package 目录
+        git clone --depth 1 https://github.com/xiaorouji/openwrt-passwall-packages.git package/passwall-packages
+        git clone --depth 1 https://github.com/xiaorouji/openwrt-passwall.git package/passwall
+        echo "PassWall packages cloned successfully"
+        ls -la package/passwall-packages/ | head -20
+        ls -la package/passwall/ | head -20
 
     - name: Load custom configuration
       run: |
@@ -135,17 +137,17 @@ jobs:
           #### 📡 网络功能
           - ✅ **4G/5G模组**: QMI/MBIM/NCM/PPP拨号支持
           - ✅ **安卓USB共享**: RNDIS/NCM网络协议
-          - ✅ **千兆以太网**: 原生支持
+          - ✅ **千兆以太网**: 2x 千兆以太网口
           
           #### 🐳 Docker支持
           - ✅ **Docker CE**: 完整容器环境
           - ✅ **LuCI管理**: 图形化管理界面
           - ✅ **多种网络**: bridge/host/ipvlan/macvlan
           
-          #### 🔒 OpenClash
-          - ✅ **透明代理**: 基于Clash
-          - ✅ **多协议**: Shadowsocks/Vmess/Trojan等
-          - ✅ **订阅更新**: 自动更新订阅
+          #### 🔒 代理工具
+          - ✅ **PassWall**: 全协议代理
+          - ✅ **OpenClash**: Clash内核代理
+          - ✅ **SmartDNS**: DNS加速
           
           ### 🔧 烧录方法
           
@@ -169,15 +171,14 @@ jobs:
           ### 📚 相关资源
           
           - [RADXA E20C官方文档](https://docs.radxa.com/e/e20c/getting-started/introduction)
-          - [RADXA E20C Wiki](https://wiki.radxa.com/Rock5/zh-cn/E20c)
           - [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede)
+          - [openwrt-passwall](https://github.com/xiaorouji/openwrt-passwall)
           
           ### ⚠️ 注意事项
           
           1. 首次编译约需2-3小时
-          2. eMMC版本需预烧录TF卡镜像
-          3. OpenClash建议在x86设备运行
-          4. 4G/5G模组需在LuCI中配置
+          2. 供电仅支持5V
+          3. PassWall和OpenClash二选一使用
         files: ${{ runner.temp }}/output/*
         draft: false
         prerelease: false
