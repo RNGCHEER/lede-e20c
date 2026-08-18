@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Initialize environment
       run: |
@@ -79,12 +79,34 @@ jobs:
         find bin/targets/ -name "*.bin" -exec mv {} /output/ \;
         find bin/packages/ -name "*.ipk" -exec mv {} /output/packages/ \;
 
-    - name: Upload firmware
-      uses: actions/upload-artifact@v3
+    - name: Upload firmware as artifact
+      uses: actions/upload-artifact@v4
       if: env.BUILD_STATUS == 'success'
       with:
         name: OpenWrt_firmware_${{ env.BUILD_DATE }}
         path: /output/*
+
+    - name: Publish firmware to GitHub Releases
+      if: env.BUILD_STATUS == 'success'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: build-${{ env.BUILD_DATE }}
+        name: "E20C Firmware Build ${{ env.BUILD_DATE }}"
+        body: |
+          ## E20C LEDE Firmware
+          
+          Build Date: ${{ env.BUILD_DATE }}
+          
+          ### Features:
+          - 4G/5G Module Support
+          - Android USB Tethering
+          - Docker Support
+          - OpenClash Support
+        files: /output/*
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: SSH Connection to Actions
       uses: mxschmitt/action-tmate@v3
