@@ -38,16 +38,27 @@
 - RNDIS/NCM网络协议
 - LuCI管理界面
 
+### 🌐 PassWall（完整版）
+- **核心代理**: Shadowsocks Rust、Xray、V2Ray
+- **高级协议**: Hysteria、TUIC、NaiveProxy、Shadow TLS
+- **插件支持**: v2ray-plugin、xray-plugin、simple-obfs
+- **辅助工具**: ipt2socks、tcping、dns2socks、iperf3
+
+### 🔒 OpenClash
+- 基于Clash的透明代理
+- 支持多种代理协议
+- LuCI管理界面
+
+### ⚡ SmartDNS
+- DNS加速与防污染
+- 支持国内域名优先解析
+- 与PassWall/OpenClash完美配合
+
 ### 🐳 Docker支持
 - Docker CE + CLI
 - Containerd + Runc
 - LuCI Docker管理界面
 - overlay2/bridge/host/ipvlan网络
-
-### 🔒 OpenClash支持
-- 基于Clash的透明代理
-- 支持多种代理协议
-- LuCI管理界面
 
 ## 使用方法
 
@@ -84,6 +95,8 @@
 - [RADXA E20C Wiki](https://wiki.radxa.com/Rock5/zh-cn/E20c)
 - [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede)
 - [OpenClash](https://github.com/vernesong/OpenClash)
+- [PassWall](https://github.com/xiaorouji/openwrt-passwall)
+- [SmartDNS](https://github.com/pymumu/smartdns)
 
 ## 注意事项
 
@@ -98,3 +111,5 @@
 - [RADXA](https://www.radxa.com/) - E20C硬件设计
 - [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede) - LEDE源码
 - [OpenClash](https://github.com/vernesong/OpenClash) - 代理工具
+- [PassWall](https://github.com/xiaorouji/openwrt-passwall) - 代理工具
+- [SmartDNS](https://github.com/pymumu/smartdns) - DNS加速
