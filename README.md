@@ -24,39 +24,38 @@
 
 ## 固件功能
 
+### 📡 代理工具
+
+#### 🔹 PassWall（完整版）
+- 支持所有代理协议：Shadowsocks/Rust、VMess、Trojan、VLESS、Hysteria、NaiveProxy、TUIC 等
+- 核心组件：ipt2socks、dns2socks、tcping
+- 透明代理 + TProxy 模式
+- 多节点负载均衡
+- 节点自动切换
+
+#### 🔹 SmartDNS + ChinaDNS
+- 国内外DNS智能分流
+- DNS缓存加速
+- 防止DNS污染和劫持
+
+#### 🔹 OpenClash
+- 基于Clash内核的透明代理
+- 支持多种代理协议
+- LuCI管理界面
+- 订阅自动更新
+
 ### 💾 存储支持
 - **eMMC写入**: 支持直接将固件写入板载eMMC（0/8/16/32/64GB可选）
 - **TF卡启动**: 支持从microSD存储卡启动，便于测试和恢复
 - **ext4文件系统**: 高性能读写支持
 
-### 📡 4G/5G模组支持
+### 📱 4G/5G模组 & 安卓USB共享
 - QMI/MBIM/NCM/PPP拨号协议
+- RNDIS/NCM安卓USB网络共享
 - 高通、华为、中兴等主流模组驱动
-- usb-modeswitch自动识别
-
-### 📱 安卓USB网络共享
-- RNDIS/NCM网络协议
-- LuCI管理界面
-
-### 🌐 PassWall（完整版）
-- **核心代理**: Shadowsocks Rust、Xray、V2Ray
-- **高级协议**: Hysteria、TUIC、NaiveProxy、Shadow TLS
-- **插件支持**: v2ray-plugin、xray-plugin、simple-obfs
-- **辅助工具**: ipt2socks、tcping、dns2socks、iperf3
-
-### 🔒 OpenClash
-- 基于Clash的透明代理
-- 支持多种代理协议
-- LuCI管理界面
-
-### ⚡ SmartDNS
-- DNS加速与防污染
-- 支持国内域名优先解析
-- 与PassWall/OpenClash完美配合
 
 ### 🐳 Docker支持
-- Docker CE + CLI
-- Containerd + Runc
+- Docker CE + CLI + Containerd
 - LuCI Docker管理界面
 - overlay2/bridge/host/ipvlan网络
 
@@ -94,9 +93,9 @@
 - [RADXA E20C官方文档](https://docs.radxa.com/e/e20c/getting-started/introduction)
 - [RADXA E20C Wiki](https://wiki.radxa.com/Rock5/zh-cn/E20c)
 - [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede)
-- [OpenClash](https://github.com/vernesong/OpenClash)
 - [PassWall](https://github.com/xiaorouji/openwrt-passwall)
 - [SmartDNS](https://github.com/pymumu/smartdns)
+- [OpenClash](https://github.com/vernesong/OpenClash)
 
 ## 注意事项
 
@@ -105,11 +104,12 @@
 3. 建议使用x86设备运行OpenClash以获得更好性能
 4. 4G/5G模组需要在LuCI界面中进行配置
 5. 供电仅支持5V，请使用合格的5V电源适配器
+6. PassWall和OpenClash二选一使用，避免端口冲突
 
 ## 致谢
 
 - [RADXA](https://www.radxa.com/) - E20C硬件设计
 - [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede) - LEDE源码
+- [xiaorouji/openwrt-passwall](https://github.com/xiaorouji/openwrt-passwall) - PassWall代理
+- [pymumu/smartdns](https://github.com/pymumu/smartdns) - SmartDNS
 - [OpenClash](https://github.com/vernesong/OpenClash) - 代理工具
-- [PassWall](https://github.com/xiaorouji/openwrt-passwall) - 代理工具
-- [SmartDNS](https://github.com/pymumu/smartdns) - DNS加速
