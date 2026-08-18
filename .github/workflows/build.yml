@@ -1,4 +1,4 @@
-name: Build LEDE Firmware
+name: Build RADXA E20C LEDE Firmware
 
 on:
   workflow_dispatch:
@@ -75,34 +75,86 @@ jobs:
       if: env.BUILD_STATUS == 'success'
       run: |
         cd /workdir/source
-        mkdir -p /output
-        find bin/targets/ -name "*.bin" -exec mv {} /output/ \;
-        find bin/packages/ -name "*.ipk" -exec mv {} /output/packages/ \;
+        mkdir -p ${{ runner.temp }}/output
+        find bin/targets/ -name "*.bin" -exec cp {} ${{ runner.temp }}/output/ \;
+        find bin/packages/ -name "*.ipk" -exec cp --parents {} ${{ runner.temp }}/output/packages/ \;
+        cd ${{ runner.temp }}/output
+        tar -czf openwrt-radxa-e20c-*.bin.tar.gz *.bin 2>/dev/null || true
+        ls -lh ${{ runner.temp }}/output/
 
     - name: Upload firmware as artifact
       uses: actions/upload-artifact@v4
       if: env.BUILD_STATUS == 'success'
       with:
-        name: OpenWrt_firmware_${{ env.BUILD_DATE }}
-        path: /output/*
+        name: RADXA_E20C_firmware_${{ env.BUILD_DATE }}
+        path: ${{ runner.temp }}/output/*
+        retention-days: 30
 
     - name: Publish firmware to GitHub Releases
       if: env.BUILD_STATUS == 'success'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: build-${{ env.BUILD_DATE }}
-        name: "E20C Firmware Build ${{ env.BUILD_DATE }}"
+        name: "RADXA E20C Firmware Build ${{ env.BUILD_DATE }}"
         body: |
-          ## E20C LEDE Firmware
+          ## RADXA E20C LEDE固件
           
-          Build Date: ${{ env.BUILD_DATE }}
+          **构建日期**: ${{ env.BUILD_DATE }}
           
-          ### Features:
-          - 4G/5G Module Support
-          - Android USB Tethering
-          - Docker Support
-          - OpenClash Support
-        files: /output/*
+          ### 📋 固件功能
+          
+          #### 💾 存储支持
+          - ✅ **eMMC写入**: 支持直接将固件写入板载eMMC
+          - ✅ **TF卡启动**: 支持从TF卡启动，便于测试和恢复
+          - ✅ **ext4文件系统**: 高性能读写支持
+          
+          #### 📡 网络功能
+          - ✅ **4G/5G模组**: QMI/MBIM/NCM/PPP拨号支持
+          - ✅ **安卓USB共享**: RNDIS/NCM网络协议
+          - ✅ **千兆以太网**: 原生支持
+          
+          #### 🐳 Docker支持
+          - ✅ **Docker CE**: 完整容器环境
+          - ✅ **LuCI管理**: 图形化管理界面
+          - ✅ **多种网络**: bridge/host/ipvlan/macvlan
+          
+          #### 🔒 OpenClash
+          - ✅ **透明代理**: 基于Clash
+          - ✅ **多协议**: Shadowsocks/Vmess/Trojan等
+          - ✅ **订阅更新**: 自动更新订阅
+          
+          ### 🔧 烧录方法
+          
+          #### 方法一：TF卡启动
+          1. 下载固件文件
+          2. 使用Balena Etcher或`dd`命令写入TF卡
+          3. 将TF卡插入E20C
+          4. 上电启动
+          
+          #### 方法二：写入eMMC
+          1. 先从TF卡启动
+          2. 使用`dd`命令将固件写入eMMC
+          3. 断电移除TF卡
+          4. 从eMMC启动
+          
+          #### 方法三：SSH网络安装
+          1. 通过网线连接E20C
+          2. 访问LuCI界面
+          3. 在系统-备份/升级中上传固件
+          
+          ### 📚 相关资源
+          
+          - [RADXA E20C官方文档](https://docs.radxa.com/e/e20c/getting-started/introduction)
+          - [RADXA E20C Wiki](https://wiki.radxa.com/Rock5/zh-cn/E20c)
+          - [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede)
+          
+          ### ⚠️ 注意事项
+          
+          1. 首次编译约需2-3小时
+          2. eMMC版本需预烧录TF卡镜像
+          3. OpenClash建议在x86设备运行
+          4. 4G/5G模组需在LuCI中配置
+        files: ${{ runner.temp }}/output/*
         draft: false
         prerelease: false
       env:
