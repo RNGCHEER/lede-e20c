@@ -57,9 +57,9 @@ jobs:
     - name: Clone PassWall packages
       run: |
         cd /workdir/source
-        # 克隆 PassWall 主程序和依赖包到 package 目录
-        git clone --depth 1 https://github.com/xiaorouji/openwrt-passwall-packages.git package/passwall-packages
-        git clone --depth 1 https://github.com/xiaorouji/openwrt-passwall.git package/passwall
+        # 使用正确的 PassWall 仓库地址
+        git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git package/passwall-packages
+        git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall.git package/passwall
         echo "PassWall packages cloned successfully"
         ls -la package/passwall-packages/ | head -20
         ls -la package/passwall/ | head -20
@@ -172,7 +172,7 @@ jobs:
           
           - [RADXA E20C官方文档](https://docs.radxa.com/e/e20c/getting-started/introduction)
           - [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede)
-          - [openwrt-passwall](https://github.com/xiaorouji/openwrt-passwall)
+          - [openwrt-passwall](https://github.com/Openwrt-Passwall/openwrt-passwall)
           
           ### ⚠️ 注意事项
           
