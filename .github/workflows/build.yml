@@ -57,12 +57,18 @@ jobs:
     - name: Clone PassWall packages
       run: |
         cd /workdir/source
-        # 使用正确的 PassWall 仓库地址
+        # PassWall 1 - 主程序和依赖包
         git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git package/passwall-packages
         git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall.git package/passwall
+        # PassWall 2
+        git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall2.git package/passwall2
         echo "PassWall packages cloned successfully"
-        ls -la package/passwall-packages/ | head -20
-        ls -la package/passwall/ | head -20
+        echo "=== PassWall Packages ==="
+        ls package/passwall-packages/ | head -10
+        echo "=== PassWall 1 ==="
+        ls package/passwall/ | head -10
+        echo "=== PassWall 2 ==="
+        ls package/passwall2/ | head -10
 
     - name: Load custom configuration
       run: |
@@ -102,10 +108,16 @@ jobs:
       run: |
         cd /workdir/source
         mkdir -p ${{ runner.temp }}/output
+        # 复制固件
         find bin/targets/ -name "*.bin" -exec cp {} ${{ runner.temp }}/output/ \;
-        find bin/packages/ -name "*.ipk" -exec cp --parents {} ${{ runner.temp }}/output/packages/ \;
+        # 复制 IPK 包（支持手动安装）
+        mkdir -p ${{ runner.temp }}/output/packages
+        find bin/packages/ -name "*.ipk" -exec cp {} ${{ runner.temp }}/output/packages/ \; 2>/dev/null || true
+        # 打包 IPK 为 tar.gz 方便下载
         cd ${{ runner.temp }}/output
-        tar -czf openwrt-radxa-e20c-*.bin.tar.gz *.bin 2>/dev/null || true
+        tar -czf openwrt-radxa-e20c-firmware.tar.gz *.bin 2>/dev/null || true
+        tar -czf openwrt-radxa-e20c-packages.tar.gz packages/ 2>/dev/null || true
+        echo "=== Output Files ==="
         ls -lh ${{ runner.temp }}/output/
 
     - name: Upload firmware as artifact
@@ -113,7 +125,17 @@ jobs:
       if: env.BUILD_STATUS == 'success'
       with:
         name: RADXA_E20C_firmware_${{ env.BUILD_DATE }}
-        path: ${{ runner.temp }}/output/*
+        path: |
+          ${{ runner.temp }}/output/*.bin
+          ${{ runner.temp }}/output/*.tar.gz
+        retention-days: 30
+
+    - name: Upload IPK packages as artifact
+      uses: actions/upload-artifact@v4
+      if: env.BUILD_STATUS == 'success'
+      with:
+        name: RADXA_E20C_packages_${{ env.BUILD_DATE }}
+        path: ${{ runner.temp }}/output/packages/*.ipk
         retention-days: 30
 
     - name: Publish firmware to GitHub Releases
@@ -131,23 +153,31 @@ jobs:
           
           #### 💾 存储支持
           - ✅ **eMMC写入**: 支持直接将固件写入板载eMMC
-          - ✅ **TF卡启动**: 支持从TF卡启动，便于测试和恢复
+          - ✅ **TF卡启动**: 支持从TF卡启动
           - ✅ **ext4文件系统**: 高性能读写支持
           
           #### 📡 网络功能
-          - ✅ **4G/5G模组**: QMI/MBIM/NCM/PPP拨号支持
-          - ✅ **安卓USB共享**: RNDIS/NCM网络协议
-          - ✅ **千兆以太网**: 2x 千兆以太网口
+          - ✅ **4G/5G模组**: QMI/MBIM/NCM/PPP拨号
+          - ✅ **安卓USB共享**: RNDIS/NCM
+          - ✅ **千兆以太网**: 2x 千兆口
           
           #### 🐳 Docker支持
           - ✅ **Docker CE**: 完整容器环境
-          - ✅ **LuCI管理**: 图形化管理界面
-          - ✅ **多种网络**: bridge/host/ipvlan/macvlan
+          - ✅ **LuCI管理**: 图形化界面
           
           #### 🔒 代理工具
-          - ✅ **PassWall**: 全协议代理
-          - ✅ **OpenClash**: Clash内核代理
+          - ✅ **PassWall 1**: 全协议代理
+          - ✅ **PassWall 2**: 备用代理
+          - ✅ **OpenClash**: Clash内核
           - ✅ **SmartDNS**: DNS加速
+          
+          ### 📦 下载说明
+          
+          | 文件 | 说明 |
+          |------|------|
+          | `*-firmware.tar.gz` | 固件文件（刷机用） |
+          | `*-packages.tar.gz` | IPK软件包（手动安装用） |
+          | `*.bin` | 单独固件文件 |
           
           ### 🔧 烧录方法
           
@@ -163,23 +193,26 @@ jobs:
           3. 断电移除TF卡
           4. 从eMMC启动
           
-          #### 方法三：SSH网络安装
-          1. 通过网线连接E20C
-          2. 访问LuCI界面
-          3. 在系统-备份/升级中上传固件
+          #### 方法三：LuCI在线安装IPK
+          1. 访问 LuCI → 系统 → 备份/升级
+          2. 上传固件进行升级
           
           ### 📚 相关资源
           
           - [RADXA E20C官方文档](https://docs.radxa.com/e/e20c/getting-started/introduction)
           - [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede)
-          - [openwrt-passwall](https://github.com/Openwrt-Passwall/openwrt-passwall)
+          - [PassWall 1](https://github.com/Openwrt-Passwall/openwrt-passwall)
+          - [PassWall 2](https://github.com/Openwrt-Passwall/openwrt-passwall2)
           
           ### ⚠️ 注意事项
           
           1. 首次编译约需2-3小时
           2. 供电仅支持5V
           3. PassWall和OpenClash二选一使用
-        files: ${{ runner.temp }}/output/*
+          4. IPK包可在LuCI中手动安装
+        files: |
+          ${{ runner.temp }}/output/*.bin
+          ${{ runner.temp }}/output/*.tar.gz
         draft: false
         prerelease: false
       env:
