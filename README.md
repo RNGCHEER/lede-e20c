@@ -24,40 +24,47 @@
 
 ## 固件功能
 
+### 🔐 KMS 激活服务
+- **vlmcsd**: 支持 Windows/Office KMS 激活
+- LuCI 管理界面
+- 无需额外配置，开箱即用
+
+### 🌐 DDNS 动态域名解析
+- **支持服务商**:
+  - Cloudflare
+  - DNSPod
+  - No-IP
+  - 阿里云解析
+- LuCI 管理界面
+- 自动更新域名解析
+
 ### 📡 代理工具
 
-#### 🔹 PassWall（完整版）
-- 支持所有代理协议：Shadowsocks/Rust、VMess、Trojan、VLESS、Hysteria、NaiveProxy、TUIC 等
-- 核心组件：ipt2socks、dns2socks、tcping
+#### 🔹 PassWall 1 + PassWall 2
+- 支持所有代理协议：Shadowsocks/Rust、VMess、Trojan、VLESS、Hysteria2、NaiveProxy 等
 - 透明代理 + TProxy 模式
 - 多节点负载均衡
-- 节点自动切换
 
 #### 🔹 SmartDNS + ChinaDNS
 - 国内外DNS智能分流
 - DNS缓存加速
-- 防止DNS污染和劫持
 
 #### 🔹 OpenClash
 - 基于Clash内核的透明代理
 - 支持多种代理协议
-- LuCI管理界面
-- 订阅自动更新
 
 ### 💾 存储支持
-- **eMMC写入**: 支持直接将固件写入板载eMMC（0/8/16/32/64GB可选）
-- **TF卡启动**: 支持从microSD存储卡启动，便于测试和恢复
+- **eMMC写入**: 支持直接将固件写入板载eMMC
+- **TF卡启动**: 支持从microSD存储卡启动
 - **ext4文件系统**: 高性能读写支持
 
 ### 📱 4G/5G模组 & 安卓USB共享
 - QMI/MBIM/NCM/PPP拨号协议
 - RNDIS/NCM安卓USB网络共享
-- 高通、华为、中兴等主流模组驱动
 
 ### 🐳 Docker支持
 - Docker CE + CLI + Containerd
 - LuCI Docker管理界面
-- overlay2/bridge/host/ipvlan网络
 
 ## 使用方法
 
@@ -74,7 +81,7 @@
 4. 从eMMC启动
 
 ### 方法三：SSH网络安装
-1. 通过网线连接E20C（双千兆以太网口任选其一）
+1. 通过网线连接E20C
 2. 访问LuCI界面
 3. 在系统-备份/升级中上传固件
 
@@ -91,25 +98,20 @@
 ## 相关资源
 
 - [RADXA E20C官方文档](https://docs.radxa.com/e/e20c/getting-started/introduction)
-- [RADXA E20C Wiki](https://wiki.radxa.com/Rock5/zh-cn/E20c)
 - [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede)
-- [PassWall](https://github.com/xiaorouji/openwrt-passwall)
-- [SmartDNS](https://github.com/pymumu/smartdns)
+- [openwrt-passwall](https://github.com/Openwrt-Passwall/openwrt-passwall)
 - [OpenClash](https://github.com/vernesong/OpenClash)
 
 ## 注意事项
 
 1. 首次编译可能需要较长时间（约2-3小时）
-2. eMMC版本需要使用官方工具预烧录TF卡镜像
-3. 建议使用x86设备运行OpenClash以获得更好性能
-4. 4G/5G模组需要在LuCI界面中进行配置
-5. 供电仅支持5V，请使用合格的5V电源适配器
-6. PassWall和OpenClash二选一使用，避免端口冲突
+2. 供电仅支持5V
+3. PassWall和OpenClash二选一使用
+4. KMS服务仅供学习测试使用
 
 ## 致谢
 
 - [RADXA](https://www.radxa.com/) - E20C硬件设计
 - [coolsnowwolf/lede](https://github.com/coolsnowwolf/lede) - LEDE源码
-- [xiaorouji/openwrt-passwall](https://github.com/xiaorouji/openwrt-passwall) - PassWall代理
-- [pymumu/smartdns](https://github.com/pymumu/smartdns) - SmartDNS
+- [Openwrt-Passwall](https://github.com/Openwrt-Passwall/openwrt-passwall) - PassWall代理
 - [OpenClash](https://github.com/vernesong/OpenClash) - 代理工具
