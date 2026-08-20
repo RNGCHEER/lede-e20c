@@ -105,22 +105,48 @@ jobs:
         echo "BUILD_STATUS=success" >> $GITHUB_ENV
         echo "BUILD_DATE=$(date +"%Y.%m.%d.%H%M")" >> $GITHUB_ENV
 
+    - name: Debug - List build outputs
+      if: env.BUILD_STATUS == 'success'
+      run: |
+        cd /workdir/source
+        echo "=== Directory structure ==="
+        find bin/ -type f -name "*.bin" -o -name "*.img.gz" -o -name "*.img" -o -name "*.tar.gz" | head -20
+        echo "=== Looking for firmware files ==="
+        find bin/targets/ -type f \( -name "*.bin" -o -name "*.img.gz" -o -name "*.img" \) -exec ls -lh {} \;
+        echo "=== All files in bin/targets/ ==="
+        ls -lhR bin/targets/ | head -50
+
     - name: Organize output files
       if: env.BUILD_STATUS == 'success'
       run: |
         cd /workdir/source
         mkdir -p ${{ runner.temp }}/output
-        # 复制固件
-        find bin/targets/ -name "*.bin" -exec cp {} ${{ runner.temp }}/output/ \;
+        # 复制固件 (支持多种格式)
+        find bin/targets/ -type f \( -name "*.bin" -o -name "*.img.gz" -o -name "*.img" \) -exec cp {} ${{ runner.temp }}/output/ \;
         # 复制 IPK 包（支持手动安装）
         mkdir -p ${{ runner.temp }}/output/packages
         find bin/packages/ -name "*.ipk" -exec cp {} ${{ runner.temp }}/output/packages/ \; 2>/dev/null || true
         # 打包 IPK 为 tar.gz 方便下载
         cd ${{ runner.temp }}/output
-        tar -czf openwrt-radxa-e20c-firmware.tar.gz *.bin 2>/dev/null || true
-        tar -czf openwrt-radxa-e20c-packages.tar.gz packages/ 2>/dev/null || true
+        # 创建固件压缩包 (如果有文件)
+        if ls *.bin *.img.gz *.img 1> /dev/null 2>&1; then
+          tar -czf openwrt-radxa-e20c-firmware.tar.gz *.bin *.img.gz *.img 2>/dev/null || true
+        fi
+        # 创建 IPK 压缩包
+        if [ -d "packages" ] && [ "$(ls -A packages/ 2>/dev/null)" ]; then
+          tar -czf openwrt-radxa-e20c-packages.tar.gz packages/ 2>/dev/null || true
+        fi
         echo "=== Output Files ==="
         ls -lh ${{ runner.temp }}/output/
+        # 检查是否有固件文件
+        FIRMWARE_COUNT=$(find ${{ runner.temp }}/output/ -type f \( -name "*.bin" -o -name "*.img.gz" -o -name "*.img" \) | wc -l)
+        echo "FIRMWARE_COUNT=${FIRMWARE_COUNT}" >> $GITHUB_ENV
+        if [ "${FIRMWARE_COUNT}" -gt 0 ]; then
+          echo "HAS_FIRMWARE=true" >> $GITHUB_ENV
+        else
+          echo "HAS_FIRMWARE=false" >> $GITHUB_ENV
+          echo "⚠️ Warning: No firmware files found!"
+        fi
 
     - name: Upload firmware as artifact
       uses: actions/upload-artifact@v4
@@ -129,6 +155,8 @@ jobs:
         name: RADXA_E20C_firmware_${{ env.BUILD_DATE }}
         path: |
           ${{ runner.temp }}/output/*.bin
+          ${{ runner.temp }}/output/*.img.gz
+          ${{ runner.temp }}/output/*.img
           ${{ runner.temp }}/output/*.tar.gz
         retention-days: 30
 
@@ -141,7 +169,7 @@ jobs:
         retention-days: 30
 
     - name: Publish firmware to GitHub Releases
-      if: env.BUILD_STATUS == 'success'
+      if: env.BUILD_STATUS == 'success' && env.HAS_FIRMWARE == 'true'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: build-${{ env.BUILD_DATE }}
@@ -179,7 +207,7 @@ jobs:
           |------|------|
           | `*-firmware.tar.gz` | 固件文件（刷机用） |
           | `*-packages.tar.gz` | IPK软件包（手动安装用） |
-          | `*.bin` | 单独固件文件 |
+          | `*.bin`, `*.img.gz`, `*.img` | 单独固件文件 |
           
           ### 🔧 烧录方法
           
@@ -214,6 +242,8 @@ jobs:
           4. IPK包可在LuCI中手动安装
         files: |
           ${{ runner.temp }}/output/*.bin
+          ${{ runner.temp }}/output/*.img.gz
+          ${{ runner.temp }}/output/*.img
           ${{ runner.temp }}/output/*.tar.gz
         draft: false
         prerelease: false
@@ -224,4 +254,3 @@ jobs:
       uses: mxschmitt/action-tmate@v3
       if: env.SSH_FILE == 'true'
       timeout-minutes: 30
-
